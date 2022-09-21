@@ -30,8 +30,17 @@ fn all_arguments_are_ok(args: Vec<Result<f64, ParseFloatError>>) -> bool {
   args.clone().into_iter().all(|arg| match arg { Err(x) => false, Ok(x) => true})
 }
 
-fn main () {
+fn calculate_value(args: Vec<&str>) -> f64 {
+  let mut ops_map: HashMap<&str, fn(Vec<f64>) -> f64> = HashMap::new();
+  ops_map.insert("add", add);
+  ops_map.insert("sub", sub);
+  ops_map.insert("mul", mul);
+  ops_map.insert("div", div);
 
+  ops_map[args[0]](args[1..].into_iter().map(|arg| arg.parse::<f64>().unwrap()).collect::<Vec<f64>>())
+}
+
+fn main () {
   let mut ops_map: HashMap<&str, fn(Vec<f64>) -> f64> = HashMap::new();
   ops_map.insert("add", add);
   ops_map.insert("sub", sub);
@@ -80,7 +89,7 @@ fn main () {
         // match each arg in parsed_args to be false if it's an error and true if it's not, and make sure all are not errors. 
         if all_arguments_are_ok(parsed_args.clone()) {
           // calculate the value based on the operation and the arguments
-          let value = ops_map[args[0]](args[1..].into_iter().map(|arg| arg.parse::<f64>().unwrap()).collect::<Vec<f64>>());
+          let value = calculate_value(args.clone());
           // print the value, restart 'program loop. 
           println!("{:?}", value);
         } 

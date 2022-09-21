@@ -1,0 +1,2 @@
+With Rust installed, in Bash, run: 
+rustc program.rs && ./program

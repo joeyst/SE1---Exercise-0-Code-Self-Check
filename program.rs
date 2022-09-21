@@ -1,3 +1,6 @@
+// Name: Joseph (Joey) Stenbeck
+// Description: program takes in command from user, performs calculation, and prints result. 
+
 use std::collections::HashMap;
 use std::io::{stdin,stdout,Write};
 use std::num::ParseFloatError;

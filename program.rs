@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::io::{stdin,stdout,Write};
+use std::num::ParseFloatError;
 
 fn add(values: Vec<f64>) -> f64 {
   values.into_iter().reduce(|a, b| a + b).unwrap()
@@ -21,9 +22,13 @@ fn print_options() {
   println!("usage: add|sub|mul|div v0 v1\nquit");
 }
 
-// fn handle_one_arg() {
-// 
-// }
+fn parse_arguments(args: Vec<&str>) -> Vec<Result<f64, ParseFloatError>> {
+  args[1..].into_iter().map(|arg| arg.parse::<f64>()).collect()
+}
+
+fn all_arguments_are_ok(args: Vec<Result<f64, ParseFloatError>>) -> bool {
+  args.clone().into_iter().all(|arg| match arg { Err(x) => false, Ok(x) => true})
+}
 
 fn main () {
 
@@ -69,11 +74,11 @@ fn main () {
     // if the user input can't be coerced into a float, print the options message and restart the 'program loop. 
     else if number_of_args == 3 {
       // check if operator in operators map
-      if ops_map.contains_key(args[0]) {
+      if ops_map.contains_key(args[0].clone()) {
         // try to convert user input strings into floats. If can't coerce, will turn into Err(x), otherwise, will be Ok(x)
-        let parsed_args = args[1..].into_iter().map(|arg| arg.parse::<f64>());
+        let parsed_args = parse_arguments(args.clone());
         // match each arg in parsed_args to be false if it's an error and true if it's not, and make sure all are not errors. 
-        if parsed_args.clone().all(|arg| match arg { Err(x) => false, Ok(x) => true}) {
+        if all_arguments_are_ok(parsed_args.clone()) {
           // calculate the value based on the operation and the arguments
           let value = ops_map[args[0]](args[1..].into_iter().map(|arg| arg.parse::<f64>().unwrap()).collect::<Vec<f64>>());
           // print the value, restart 'program loop. 

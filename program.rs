@@ -1,10 +1,12 @@
 // Name: Joseph (Joey) Stenbeck
 // Description: program takes in command from user, performs calculation, and prints result. 
 
+#![cfg_attr(debug_assertions, allow(dead_code, unused_imports, non_snake_case, unused_must_use))]
 use std::collections::HashMap;
 use std::io::{stdin,stdout,Write};
 use std::num::ParseFloatError;
 use std::f64::{INFINITY, NEG_INFINITY};
+use std::io;
 
 fn add(values: Vec<f64>) -> f64 {
   values.into_iter().reduce(|a, b| a + b).unwrap()
@@ -23,7 +25,7 @@ fn div(values: Vec<f64>) -> f64 {
 }
 
 fn print_options() {
-  println!("usage: add|sub|mul|div v0 v1\nquit");
+  println!("usage: add|sub|mul|div v0 v1\n       quit");
 }
 
 fn parse_arguments(args: Vec<&str>) -> Vec<Result<f64, ParseFloatError>> {
@@ -31,7 +33,7 @@ fn parse_arguments(args: Vec<&str>) -> Vec<Result<f64, ParseFloatError>> {
 }
 
 fn all_arguments_are_ok(args: Vec<Result<f64, ParseFloatError>>) -> bool {
-  args.clone().into_iter().all(|arg| match arg { Err(x) => false, Ok(x) => true})
+  args.clone().into_iter().all(|arg| match arg { Err(_x) => false, Ok(_x) => true})
 }
 
 fn calculate_value(args: Vec<&str>) -> f64 {
@@ -85,7 +87,10 @@ fn main () {
   ops_map.insert("div", div);
 
   'program: loop {
-
+    print!("SuperRustyBot> ");
+    // Write::flush taken from here: https://stackoverflow.com/questions/34993744/why-does-this-read-input-before-printing
+    // apparently, print is "line buffered" so you need to print a new line for it to actually appear. 
+    Write::flush(&mut io::stdout()).expect("");
     let mut user_input: String = String::new();
     std::io::stdin().read_line(&mut user_input).unwrap();
     (*user_input).trim();

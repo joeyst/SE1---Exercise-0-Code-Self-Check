@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::io::{stdin,stdout,Write};
 use std::num::ParseFloatError;
+use std::f64::{INFINITY, NEG_INFINITY};
 
 fn add(values: Vec<f64>) -> f64 {
   values.into_iter().reduce(|a, b| a + b).unwrap()
@@ -55,7 +56,12 @@ fn handle_three_args(args: Vec<&str>) {
       // calculate the value based on the operation and the arguments
       let value = calculate_value(args.clone());
       // print the value, restart 'program loop. 
-      println!("{:?}", value);
+
+      if value == INFINITY || value == NEG_INFINITY || value.is_nan() {
+        println!("Can't divide by zero.");
+      } else {
+        println!("{:?}", value);
+      }
     } 
     else {
       // if there are any errors, print usage options, and restart 'program loop. 
@@ -91,11 +97,7 @@ fn main () {
 
     // splitting user input into dif arguments, as strings
     let args = user_input.split(" ").collect::<Vec<&str>>();
-    args.clone().into_iter().for_each(|x| println!("{:?}", x));
-
     let number_of_args = args.len();
-    println!("Number of arguments: {:?}", number_of_args);
-
     // add, sub, ... => take 1 and fold rest. for now, ask user again if total args != 3
     // quit => exit loop
     // _ => say error and ask again

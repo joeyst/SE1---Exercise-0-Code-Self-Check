@@ -21,6 +21,10 @@ fn print_options() {
   println!("usage: add|sub|mul|div v0 v1\nquit");
 }
 
+// fn handle_one_arg() {
+// 
+// }
+
 fn main () {
 
   let mut ops_map: HashMap<&str, fn(Vec<f64>) -> f64> = HashMap::new();
@@ -50,25 +54,43 @@ fn main () {
     let number_of_args = args.len();
     println!("Number of arguments: {:?}", number_of_args);
 
+    // if only one argument, make sure it's quit. 
+    // If it's quit, exit program, else print options message and restart 'program loop. 
     if number_of_args == 1 {
       match args[0] {
         "quit" => break 'program,
         _ => print_options()
       }
-    } else if number_of_args == 3 {
+    } 
+    // if there are three arguments, make sure that the first argument is in the operators map. 
+    // if it is, perform the operation on it, print the result, and restart loop. 
+    // if it's not, print options message and restart 'program loop. 
+    // I wrote this so that more than just 2 arguments can be used-- the number_of_args == 3 would just need to be changed. 
+    // if the user input can't be coerced into a float, print the options message and restart the 'program loop. 
+    else if number_of_args == 3 {
+      // check if operator in operators map
       if ops_map.contains_key(args[0]) {
+        // try to convert user input strings into floats. If can't coerce, will turn into Err(x), otherwise, will be Ok(x)
         let parsed_args = args[1..].into_iter().map(|arg| arg.parse::<f64>());
+        // match each arg in parsed_args to be false if it's an error and true if it's not, and make sure all are not errors. 
         if parsed_args.clone().all(|arg| match arg { Err(x) => false, Ok(x) => true}) {
+          // calculate the value based on the operation and the arguments
           let value = ops_map[args[0]](args[1..].into_iter().map(|arg| arg.parse::<f64>().unwrap()).collect::<Vec<f64>>());
+          // print the value, restart 'program loop. 
           println!("{:?}", value);
-        } else {
+        } 
+        else {
+          // if there are any errors, print usage options, and restart 'program loop. 
           print_options();
         }
-        
+
+      // if the operators map doesn't contain the first word the user entered, print usage options, and restart 'program loop.   
       } else {
         print_options();
       }
-    } else {
+    } 
+    // the number of arguments isn't 1 or 3, so print the usage options, and restart the 'program loop. 
+    else {
       print_options();
     }
   }

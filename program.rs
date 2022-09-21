@@ -40,6 +40,34 @@ fn calculate_value(args: Vec<&str>) -> f64 {
   ops_map[args[0]](args[1..].into_iter().map(|arg| arg.parse::<f64>().unwrap()).collect::<Vec<f64>>())
 }
 
+fn handle_three_args(args: Vec<&str>) {
+  let mut ops_map: HashMap<&str, fn(Vec<f64>) -> f64> = HashMap::new();
+  ops_map.insert("add", add);
+  ops_map.insert("sub", sub);
+  ops_map.insert("mul", mul);
+  ops_map.insert("div", div);
+
+  if ops_map.contains_key(args[0].clone()) {
+    // try to convert user input strings into floats. If can't coerce, will turn into Err(x), otherwise, will be Ok(x)
+    let parsed_args = parse_arguments(args.clone());
+    // match each arg in parsed_args to be false if it's an error and true if it's not, and make sure all are not errors. 
+    if all_arguments_are_ok(parsed_args.clone()) {
+      // calculate the value based on the operation and the arguments
+      let value = calculate_value(args.clone());
+      // print the value, restart 'program loop. 
+      println!("{:?}", value);
+    } 
+    else {
+      // if there are any errors, print usage options, and restart 'program loop. 
+      print_options();
+    }
+
+  // if the operators map doesn't contain the first word the user entered, print usage options, and restart 'program loop.   
+  } else {
+    print_options();
+  }
+}
+
 fn main () {
   let mut ops_map: HashMap<&str, fn(Vec<f64>) -> f64> = HashMap::new();
   ops_map.insert("add", add);
@@ -68,49 +96,16 @@ fn main () {
     let number_of_args = args.len();
     println!("Number of arguments: {:?}", number_of_args);
 
-    // if only one argument, make sure it's quit. 
-    // If it's quit, exit program, else print options message and restart 'program loop. 
-    if number_of_args == 1 {
-      match args[0] {
+    // add, sub, ... => take 1 and fold rest. for now, ask user again if total args != 3
+    // quit => exit loop
+    // _ => say error and ask again
+    match number_of_args {
+      1 => match args[0].clone() {
         "quit" => break 'program,
         _ => print_options()
-      }
-    } 
-    // if there are three arguments, make sure that the first argument is in the operators map. 
-    // if it is, perform the operation on it, print the result, and restart loop. 
-    // if it's not, print options message and restart 'program loop. 
-    // I wrote this so that more than just 2 arguments can be used-- the number_of_args == 3 would just need to be changed. 
-    // if the user input can't be coerced into a float, print the options message and restart the 'program loop. 
-    else if number_of_args == 3 {
-      // check if operator in operators map
-      if ops_map.contains_key(args[0].clone()) {
-        // try to convert user input strings into floats. If can't coerce, will turn into Err(x), otherwise, will be Ok(x)
-        let parsed_args = parse_arguments(args.clone());
-        // match each arg in parsed_args to be false if it's an error and true if it's not, and make sure all are not errors. 
-        if all_arguments_are_ok(parsed_args.clone()) {
-          // calculate the value based on the operation and the arguments
-          let value = calculate_value(args.clone());
-          // print the value, restart 'program loop. 
-          println!("{:?}", value);
-        } 
-        else {
-          // if there are any errors, print usage options, and restart 'program loop. 
-          print_options();
-        }
-
-      // if the operators map doesn't contain the first word the user entered, print usage options, and restart 'program loop.   
-      } else {
-        print_options();
-      }
-    } 
-    // the number of arguments isn't 1 or 3, so print the usage options, and restart the 'program loop. 
-    else {
-      print_options();
+      },
+      3 => handle_three_args(args),
+      _ => print_options()
     }
   }
-  
 }
-
-// add, sub, ... => take 1 and fold rest. for now, ask user again if total args != 3
-// quit => exit loop
-// _ => say error and ask again
